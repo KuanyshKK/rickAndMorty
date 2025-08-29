@@ -1,0 +1,64 @@
+/* src/main/resources/static/css/rm.css */
+:root{
+    --bg:#0b1224;
+    --card:#0f1830;
+    --line:#233155;
+    --text:#e6f0ff;
+    --muted:#99a7c2;
+
+    --green:#6ee7b7;
+    --green-2:#34d399;
+    --red:#ef4444;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial,'Noto Sans',sans-serif;
+    background: radial-gradient(1200px 800px at 10% -10%, #132448 0%, var(--bg) 55%) fixed;
+    color:var(--text);
+}
+
+a{color:#9cc8ff}
+a:hover{color:#bfe0ff}
+
+.navbar{
+    background:rgba(10,20,40,.8);
+    border-bottom:1px solid var(--line);
+    backdrop-filter: blur(8px);
+}
+
+.page-caption{color:var(--muted)}
+.muted{color:var(--muted)}
+
+.btn-outline-light{
+    --bs-btn-color:#cfe4ff;
+    --bs-btn-border-color:var(--line);
+    --bs-btn-hover-bg:#173055;
+    --bs-btn-hover-border-color:#2a3a62;
+}
+
+.container{max-width:1140px}
+
+/* toolbar */
+.toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.search{max-width:380px}
+
+/* Cards grid */
+.cards-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.card-rm{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative}
+.card-rm img{width:100%;height:220px;object-fit:cover}
+.card-rm .body{padding:12px}
+.name{font-weight:700}
+
+/* status chip */
+.chip{display:inline-block;padding:.28rem .55rem;border-radius:999px;background:#1b2444;color:#e5e7eb;font-weight:600;border:1px solid #2a3a62;font-size:.8rem}
+.chip.alive{background:var(--green);color:#0a1024;border-color:var(--green-2)}
+.chip.dead{background:var(--red);color:#fff;border-color:var(--red)}
+.chip.unknown{/* base appearance from .chip */}
+
+/* pagination */
+.pagination .page-link{background:transparent;border-color:var(--line);color:#9cc8ff}
+.pagination .page-item.disabled .page-link{color:#6c86b1}
+.pagination .active .page-link{background:#173055;border-color:#2a3a62;color:#fff}

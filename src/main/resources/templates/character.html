@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${ch.name + ' — Profile'}">Character — Profile</title>
+
+    <!-- Fonts & Bootstrap -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Общие стили проекта -->
+    <link rel="stylesheet" th:href="@{/css/rm.css}"/>
+
+    <!-- Стили только для этой страницы -->
+    <style>
+        .hero{display:grid;grid-template-columns:280px 1fr;gap:24px}
+        .hero-img{width:100%;height:320px;object-fit:cover;border-radius:18px;border:1px solid var(--line)}
+        .chip{display:inline-block;padding:.35rem .6rem;border-radius:999px;background:#1b2444;color:#e5e7eb;font-weight:600;border:1px solid #2a3a62}
+        .chip.alive{background:var(--green);color:#0a1024;border-color:var(--green-2)}
+        .chip.dead{background:var(--red);color:#fff;border-color:var(--red)}
+        .kv{display:grid;grid-template-columns:220px 1fr;gap:10px 14px}
+        .kv .key{color:var(--muted)}
+        .kv .val{color:var(--text);font-weight:600}
+        .more-container{display:flex;gap:12px;align-items:center;justify-content:flex-end}
+        .more-panel{background:var(--card);border:1px solid var(--line);border-radius:12px}
+        .more-panel textarea{background:transparent;color:var(--text);border-color:var(--line);
+            font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+        .episodes-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+        .episode-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+        .episode-code{font-weight:700;letter-spacing:.2px}
+        @media (max-width: 992px){ .kv{grid-template-columns:160px 1fr} }
+        @media (max-width: 768px){
+            .hero{grid-template-columns:1fr}
+            .hero-img{height:260px}
+            .more-container{justify-content:flex-start}
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark py-3">
+    <div class="container d-flex justify-content-between">
+        <a class="navbar-brand fw-bold" href="/" style="font-size:1.05rem;">🧪 Rick & Morty</a>
+        <div class="d-flex gap-3">
+            <a class="nav-link text-info" th:href="@{/characters}">Characters</a>
+            <a class="nav-link text-info" th:href="@{/episodes}">Episodes</a>
+            <a class="nav-link text-info" th:href="@{/locations}">Locations</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container my-4">
+
+    <!-- HERO -->
+    <section class="hero mb-4">
+        <img class="hero-img" th:src="${ch.image}" th:alt="${ch.name}">
+        <div>
+            <div class="d-flex align-items-start justify-content-between">
+                <h1 class="h3 fw-bold mb-2" th:text="${ch.name}">Rick Sanchez</h1>
+
+                <!-- статус и кнопка справа -->
+                <div class="more-container">
+          <span class="chip"
+                th:classappend="${
+                   #strings.equalsIgnoreCase(ch.status,'Alive') ? ' alive' :
+                   (#strings.equalsIgnoreCase(ch.status,'Dead')  ? ' dead'  : '')
+                }"
+                th:text="${#strings.isEmpty(ch.status) ? 'Unknown' : #strings.capitalize(ch.status)}">Alive</span>
+
+                    <button id="moreBtn"
+                            class="btn btn-outline-info btn-sm"
+                            type="button"
+                            data-id="[[${ch.id}]]"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#morePanel"
+                            aria-expanded="false"
+                            aria-controls="morePanel"
+                            th:attr="data-more-url=@{/character/{id}/more(id=${ch.id})}">
+                        Узнать больше
+                    </button>
+                </div>
+            </div>
+
+            <!-- Панель "узнать больше" прямо под кнопкой -->
+            <div id="morePanel" class="collapse mt-2">
+                <div class="more-panel p-3">
+          <textarea id="moreText"
+                    class="form-control form-control-sm"
+                    rows="8"
+                    style="max-height:260px;overflow:auto"
+                    placeholder="Нажмите «Узнать больше», чтобы загрузить данные…"></textarea>
+                </div>
+            </div>
+
+            <div class="kv mt-4">
+                <div class="key">Species</div>
+                <div class="val" th:text="${#strings.isEmpty(ch.species) ? 'Unknown' : ch.species}">Human</div>
+
+                <div class="key">Type</div>
+                <div class="val" th:text="${#strings.isEmpty(ch.type) ? 'Unknown' : ch.type}">—</div>
+
+                <div class="key">Gender</div>
+                <div class="val" th:text="${#strings.isEmpty(ch.gender) ? 'Unknown' : #strings.capitalize(ch.gender)}">Male</div>
+
+                <div class="key">Origin</div>
+                <div class="val" th:text="${#strings.isEmpty(ch.originName) ? 'Unknown' : ch.originName}">Earth (C-137)</div>
+
+                <div class="key">Last known location</div>
+                <div class="val" th:text="${#strings.isEmpty(ch.locationName) ? 'Unknown' : ch.locationName}">Citadel of Ricks</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EPISODES -->
+    <section>
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h2 class="h5 fw-bold m-0">Episodes</h2>
+            <span class="page-caption" th:text="${#lists.size(ch.episodes)} + ' total'">0 total</span>
+        </div>
+
+        <div class="episodes-grid" th:if="${ch.episodes != null and !#lists.isEmpty(ch.episodes)}">
+            <div class="episode-card" th:each="e : ${ch.episodes}">
+                <div class="episode-code" th:text="${e.episode}">S01E01</div>
+                <div class="fw-semibold" th:text="${e.name}">Pilot</div>
+                <div class="muted" th:text="${e.airDate}">December 2, 2013</div>
+
+                <!-- Ссылка на детальную страницу эпизода (если эндпойнт есть) -->
+                <a class="btn btn-sm btn-outline-light mt-2" th:href="@{/episode/{id}(id=${e.id})}">
+                    View details
+                </a>
+            </div>
+        </div>
+
+        <div class="alert alert-warning border-0" th:if="${ch.episodes == null or #lists.isEmpty(ch.episodes)}">
+            No episode info available.
+        </div>
+    </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btn = document.getElementById('moreBtn');
+        const area = document.getElementById('moreText');
+        let loaded = false;
+
+        btn.addEventListener('click', async () => {
+            // Грузим только при первом раскрытии
+            if (loaded) return;
+            loaded = true;
+
+            area.value = 'Загрузка…';
+            const url = btn.getAttribute('data-more-url'); // от Thymeleaf: /character/{id}/more
+
+            try {
+                const res = await fetch(url); // без специальных Accept — сервер вернёт text/plain
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                area.value = await res.text();
+            } catch (e) {
+                area.value = 'Ошибка загрузки: ' + e.message;
+                loaded = false; // позволим попробовать ещё раз
+            }
+        });
+    });
+</script>
+</body>
+</html>
